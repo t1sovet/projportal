@@ -14,7 +14,7 @@ public class TeacherMenu {
             throws CourseNotTaughtException, StudentNotEnrolledException {
         while (true) {
             System.out.println("\n--- Teacher Menu ---");
-            System.out.println("1. View courses");
+            System.out.println("1. View teaching courses");
             System.out.println("2. View students info");
             System.out.println("3. Put marks");
             System.out.println("4. Send message to other employees");
@@ -44,18 +44,23 @@ public class TeacherMenu {
                                     .println(s.getId() + " | " + s.getName() + " | " + s.getDegreeType()));
                 }
                 case 3 -> {
+                    if (teacher.getTeachingCourses().isEmpty()) {
+                        System.out.println("You are not teaching any courses.");
+                        return;
+                    }
+                    teacher.getTeachingCourses().forEach(c -> System.out.println(c.getCode() + " | " + c.getName()));
+                    String courseCode = ConsoleUtils.askText("Enter course code to put marks for: ");
+                    Course course = db.findCourseByCode(courseCode);
+                    for (Student s : db.getUsers().stream().filter(u -> u instanceof Student).map(u -> (Student) u)
+                            .filter(s -> s.getEnrolledCourses().contains(course)).toList()) {
+                        System.out.println("- " + s.getName() + " (ID: " + s.getId() + ")");
+                    }
+
                     try {
                         String studentId = ConsoleUtils.askText("Student ID: ");
                         Student student = (Student) db.findUserById(studentId);
                         if (student == null) {
                             System.out.println("Error: Student ID not found.");
-                            return;
-                        }
-
-                        String courseCode = ConsoleUtils.askText("Course code: ");
-                        Course course = db.findCourseByCode(courseCode);
-                        if (course == null) {
-                            System.out.println("Error: Course code not found.");
                             return;
                         }
 
