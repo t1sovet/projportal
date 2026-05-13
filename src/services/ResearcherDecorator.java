@@ -6,6 +6,7 @@ import interfaces.Researcher;
 import models.User;
 import models.ResearchPaper;
 import models.Student;
+import enums.UserType;
 
 public class ResearcherDecorator extends User implements Researcher {
     private static final long serialVersionUID = 1L;
@@ -39,7 +40,7 @@ public class ResearcherDecorator extends User implements Researcher {
         researchPapers.sort(c);
         for (ResearchPaper paper : researchPapers) {
             System.out.println(
-                    paper.getTitle() + " (" + paper.getYear() + ") - Citations: " + paper.getCitations() + ")");
+                    paper.getTitle() + " by " + paper.getAuthor().getName() + " - Citations: " + paper.getCitations());
         }
     }
 
@@ -52,8 +53,16 @@ public class ResearcherDecorator extends User implements Researcher {
     }
 
     @Override
-    public String getRole() {
-        return userToWrap.getRole() + " & Researcher";
+    public UserType getRole() {
+        if (userToWrap.getRole() == UserType.STUDENT) {
+            return UserType.STUDENT_RESEARCHER;
+        } else {
+            return UserType.TEACHER_RESEARCHER;
+        }
+    }
+
+    public User getInnerUser() {
+        return userToWrap;
     }
 
 }

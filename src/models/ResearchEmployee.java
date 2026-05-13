@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import enums.UserType;
 
 import interfaces.Researcher;
 
@@ -38,13 +39,13 @@ public class ResearchEmployee extends Employee implements Researcher {
         papers.sort(c);
         for (ResearchPaper paper : papers) {
             System.out.println(
-                    paper.getTitle() + " (" + paper.getYear() + ") - Citations: " + paper.getCitations() + ")");
+                    paper.getTitle() + " by " + paper.getAuthor().getName() + " - Citations: " + paper.getCitations());
         }
     }
 
     @Override
-    public String getRole() {
-        return "Researcher";
+    public UserType getRole() {
+        return UserType.RESEARCH_EMPLOYEE;
     }
 
 }

@@ -3,18 +3,11 @@ package demo;
 import java.util.List;
 
 import services.AuthService;
+import services.ResearcherDecorator;
 import services.UniversityDatabase;
 import utils.DataStorage;
-import models.Admin;
-import models.User;
-import models.Course;
-import models.Teacher;
-import models.Manager;
-import models.ResearchEmployee;
-import models.ResearchProject;
-import models.Student;
-import enums.ManagerType;
-import enums.TeacherTitle;
+import models.*;
+import enums.*;
 import exceptions.*;
 
 public class Main {
@@ -96,10 +89,10 @@ public class Main {
                 if (projects.isEmpty()) {
                     System.out.println("No research projects available.");
                 } else {
-                    System.out.println("\n--- Research Projects (sorted by page count) ---");
+                    System.out.println("\n--- Research Projects (sorted by paper count) ---");
                     projects.stream()
-                            .sorted((p1, p2) -> Integer.compare(p2.getPageCount(), p1.getPageCount()))
-                            .forEach(p -> System.out.println(p.getName() + " | Pages: " + p.getPageCount()));
+                            .sorted((p1, p2) -> Integer.compare(p2.getPaperCount(), p1.getPaperCount()))
+                            .forEach(p -> System.out.println(p.getName() + " | Papers: " + p.getPaperCount()));
                 }
             }
         }
@@ -128,8 +121,8 @@ public class Main {
 
         Admin admin = new Admin("A1", "AdminName", "admin@uni.kz", "admin123");
         Manager manager = new Manager("M1", "ManagerName", "manager@uni.kz", "manager123", ManagerType.OR);
-        Course cs101 = new Course("CS101", "Intro to Computer Science", 3, 1);
-        Course ma102 = new Course("MA102", "Calculus I", 4, 1);
+        Course cs101 = new Course("CS101", "Intro to Computer Science", 10, 1);
+        Course ma102 = new Course("MA102", "Calculus I", 20, 1);
         Course ph103 = new Course("PH103", "Physics I", 4, 1);
         Course cs201 = new Course("CS201", "Data Structures", 3, 2);
         Teacher prof = new Teacher("P1", "Pakita", "pakita@uni.kz", "pakita123", TeacherTitle.PROFESSOR, 5);
@@ -144,8 +137,11 @@ public class Main {
         Student student4 = new Student("S4", "Tevos", "tevos@uni.kz", "tevos123", 4,
                 enums.DegreeType.BACHELOR);
         ResearchEmployee researchEmployee = new ResearchEmployee("R1", "Roberto", "roberto@uni.kz", "roberto123", 3);
+        ResearchEmployee researchEmployee2 = new ResearchEmployee("R2", "Alice", "alice@uni.kz", "alice123", 4);
         ResearchProject project1 = new ResearchProject("data science");
         ResearchProject project2 = new ResearchProject("quantum computing");
+        Dean dean = new Dean("D1", "DeanName", "dean@uni.kz", "dean123");
+        Rector rector = new Rector("E1", "RectorName", "rector@uni.kz", "rector123");
 
         db.addUser(admin);
         db.addUser(manager);
@@ -156,6 +152,9 @@ public class Main {
         db.addUser(student3);
         db.addUser(student4);
         db.addUser(researchEmployee);
+        db.addUser(researchEmployee2);
+        db.addUser(dean);
+        db.addUser(rector);
         db.addCourse(ph103);
         db.addCourse(cs101);
         db.addCourse(ma102);
@@ -170,20 +169,21 @@ public class Main {
     }
 
     private static void openRoleMenu(User user, UniversityDatabase db) {
-        if (user instanceof Admin admin) {
-            AdminMenu.open(admin, db);
-        } else if (user instanceof Manager manager) {
-            ManagerMenu.open(manager, db);
-        } else if (user instanceof Teacher teacher) {
+
+        if (user.getRole() == UserType.ADMIN) {
+            AdminMenu.open((Admin) user, db);
+        } else if (user.getRole() == UserType.MANAGER) {
+            ManagerMenu.open((Manager) user, db);
+        } else if (user.getRole() == UserType.TEACHER || user.getRole() == UserType.TEACHER_RESEARCHER) {
             try {
-                TeacherMenu.open(teacher, db);
+                TeacherMenu.open((Teacher) user, db);
             } catch (CourseNotTaughtException | StudentNotEnrolledException e) {
                 System.out.println(e.getMessage());
             }
-        } else if (user instanceof Student student) {
-            StudentMenu.open(student, db);
-        } else if (user instanceof ResearchEmployee researchEmployee) {
-            ResearchEmployeeMenu.open(researchEmployee, db);
+        } else if (user.getRole() == UserType.STUDENT) {
+            StudentMenu.open((Student) user, db);
+        } else if (user.getRole() == UserType.RESEARCH_EMPLOYEE || user.getRole() == UserType.STUDENT_RESEARCHER) {
+            ResearchEmployeeMenu.open((ResearchEmployee) user, db);
         }
     }
 }

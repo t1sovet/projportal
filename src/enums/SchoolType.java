@@ -1,0 +1,8 @@
+package enums;
+
+public enum SchoolType {
+    SHOOL_OF_ENGINEERING,
+    SCHOOL_OF_BUSINESS,
+    SCHOOL_OF_APPLIED_SCIENCES,
+    SCHOOL_OF_HUMANITIES,
+}

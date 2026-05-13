@@ -3,6 +3,7 @@ package demo;
 import enums.*;
 import models.*;
 import services.UniversityDatabase;
+import utils.SimpleStatisticsStrategy;
 import exceptions.CreditLimitExceededException;
 import exceptions.FailLimitExceededException;
 
@@ -19,6 +20,9 @@ public class ManagerMenu {
             System.out.println("7. View teachers info (sorted by title)");
             System.out.println("8. Add news");
             System.out.println("9. Send message to other employees");
+            System.out.println("10. View complaints");
+            System.out.println("11. Generate report");
+            System.out.println("12. View employee request signed by dean/rector");
             System.out.println("0. Back");
             int choice = ConsoleUtils.askInt("Choose: ");
             switch (choice) {
@@ -113,13 +117,55 @@ public class ManagerMenu {
                     System.out.println("News added.");
                 }
                 case 9 -> {
-                    // Send message to other employees
+                    db.getMessages()
+                            .forEach(m -> System.out
+                                    .println(" | Content: "
+                                            + m.getContent()));
+                    String recipientId = ConsoleUtils.askText("Enter recipient user ID: ");
+                    User recipient = db.findUserById(recipientId);
+                    if (recipient == null) {
+                        System.out.println("User not found.");
+                        continue;
+                    }
+                    String messageContent = ConsoleUtils.askText("Enter message content: ");
+                    Message message = new Message(manager.getId(), recipientId, messageContent);
+                    db.addMessage(message);
+                    System.out.println("Message sent to " + recipient.getName());
+
                 }
+                case 10 -> {
+                    if (db.getComplaints().isEmpty()) {
+                        System.out.println("No complaints available.");
+                    } else {
+                        System.out.println("\n--- Complaints ---");
+                        db.getComplaints().forEach(c -> System.out.println(c.getHeader() +
+                                " | Content: " + c.getBody()));
+                    }
+                }
+
+                case 11 -> {
+                    System.out.println("Generating report...");
+                    manager.setReportStrategy(new SimpleStatisticsStrategy());
+                    Course course = db.findCourseByCode(ConsoleUtils.askText("Enter Course Code: "));
+                    manager.performReport(course);
+                }
+
                 default -> {
                     System.out.println("Invalid choice.");
                 }
+                case 12 -> {
+                    if (db.getEmployeeRequests().isEmpty()) {
+                        System.out.println("No signed employee requests available.");
+                    } else {
+                        System.out.println("\n--- Employee Requests ---");
+                        db.getEmployeeRequests().stream()
+                                .filter(r -> r.getStatus().equals(RequestStatus.APPROVED))
+                                .forEach(r -> System.out
+                                        .println(r.getEmployeeId() + " | " + r.getContent() + " | " + r.getStatus()));
+                    }
+                }
+
             }
-            break;
         }
     }
 }

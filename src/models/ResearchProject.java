@@ -16,15 +16,15 @@ public class ResearchProject implements Serializable {
         return name;
     }
 
+    public int getPaperCount() {
+        return this.papers.size();
+    }
+
     public void addPaper(ResearchPaper paper) {
-        papers.add(paper);
+        this.papers.add(paper);
     }
 
     public List<ResearchPaper> getPapers() {
         return new ArrayList<>(papers);
-    }
-
-    public int getPageCount() {
-        return this.papers.size();
     }
 }

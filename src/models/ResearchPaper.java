@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class ResearchPaper implements Serializable {
     private String title;
-    private int year;
+    private User author;
     private int citations;
 
-    public ResearchPaper(String title, int year, int citations, int pages) {
+    public ResearchPaper(String title, User author, int citations) {
         this.title = title;
-        this.year = year;
+        this.author = author;
         this.citations = citations;
     }
 
@@ -17,8 +17,8 @@ public class ResearchPaper implements Serializable {
         return title;
     }
 
-    public int getYear() {
-        return year;
+    public User getAuthor() {
+        return author;
     }
 
     public int getCitations() {

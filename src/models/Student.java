@@ -6,6 +6,7 @@ import enums.DegreeType;
 import exceptions.CreditLimitExceededException;
 import exceptions.FailLimitExceededException;
 import exceptions.LowHIndexException;
+import enums.UserType;
 
 public class Student extends User {
     private final static int MAX_CREDITS = 21;
@@ -64,8 +65,8 @@ public class Student extends User {
     }
 
     @Override
-    public String getRole() {
-        return "Student";
+    public UserType getRole() {
+        return UserType.STUDENT;
     }
 
     public int getCreditsTaken() {

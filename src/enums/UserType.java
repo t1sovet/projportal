@@ -3,8 +3,13 @@ package enums;
 public enum UserType {
     STUDENT,
     TEACHER,
-    RESEARCHER,
+    RESEARCH_EMPLOYEE,
     ADMIN,
-    MANAGER
+    MANAGER,
+    EMPLOYEE,
+    DEAN,
+    RECTOR,
+    STUDENT_RESEARCHER,
+    TEACHER_RESEARCHER
 
 }

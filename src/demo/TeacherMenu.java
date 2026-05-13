@@ -19,7 +19,11 @@ public class TeacherMenu {
             System.out.println("3. Put marks");
             System.out.println("4. Send message to other employees");
             System.out.println("5. View research papers");
-            System.out.print("6. Add research papers");
+            System.out.println("6. Add research papers");
+            System.out.println("7. Send complaint");
+            System.out.println("8. Add research paper to research project");
+            System.out.println("9. Add lesson to schedule");
+            System.out.println("10. Send employee request");
             System.out.println("0. Back");
             int choice = ConsoleUtils.askInt("Choose: ");
 
@@ -41,12 +45,11 @@ public class TeacherMenu {
                 }
                 case 3 -> {
                     try {
-                        // 1. Data Collection
                         String studentId = ConsoleUtils.askText("Student ID: ");
                         Student student = (Student) db.findUserById(studentId);
                         if (student == null) {
                             System.out.println("Error: Student ID not found.");
-                            return; // Exit this menu option early
+                            return;
                         }
 
                         String courseCode = ConsoleUtils.askText("Course code: ");
@@ -65,15 +68,11 @@ public class TeacherMenu {
                             System.out.println("Error: Marks must be within the specified ranges.");
                             return;
                         }
-                        // 2. Delegate the "Action" to the Teacher object
-                        // This is where the magic happens!
                         teacher.putMark(course, student, firstAttestation, secondAttestation, finalExam);
 
                         System.out.println("Successfully put marks for " + student.getName());
 
                     } catch (CourseNotTaughtException | StudentNotEnrolledException e) {
-                        // 3. Graceful Error Handling
-                        // Instead of crashing, we print the specific reason why it failed
                         System.out.println("Operation Failed: " + e.getMessage());
                     } catch (Exception e) {
                         System.out.println("An unexpected error occurred: " + e.getMessage());
@@ -99,7 +98,7 @@ public class TeacherMenu {
 
                 case 5 -> {
                     System.out.println("\n--- Your Research Papers ---");
-                    teacher.printPapers(Comparator.comparingInt(ResearchPaper::getYear).reversed());
+                    teacher.printPapers(Comparator.comparingInt(ResearchPaper::getCitations).reversed());
                 }
 
                 case 6 -> {
@@ -107,9 +106,59 @@ public class TeacherMenu {
                     int year = ConsoleUtils.askInt("Publication year: ");
                     int citations = ConsoleUtils.askInt("Number of citations: ");
                     int pages = ConsoleUtils.askInt("Number of pages: ");
-                    ResearchPaper paper = new ResearchPaper(title, year, citations, pages);
+                    ResearchPaper paper = new ResearchPaper(title, teacher, citations);
                     teacher.addResearchPaper(paper);
                     System.out.println("Research paper added successfully.");
+                }
+
+                case 7 -> {
+                    String complaintContent = ConsoleUtils.askText("Enter your complaint: ");
+                    Complaint complaint = new Complaint("Complaint from " + teacher.getName(), complaintContent);
+                    db.addComplaint(complaint);
+                    System.out.println("Complaint sent");
+                }
+
+                case 8 -> {
+                    db.getResearchProjects().forEach(p -> System.out.println("- " + p.getName()));
+                    String projectName = ConsoleUtils.askText("Enter research project name: ");
+                    ResearchProject project = db.findResearchProjectByName(projectName);
+                    if (project == null) {
+                        System.out.println("Research project not found.");
+                        return;
+                    }
+                    String paperTitle = ConsoleUtils.askText("Paper title: ");
+                    int year = ConsoleUtils.askInt("Publication year: ");
+                    int citations = ConsoleUtils.askInt("Number of citations: ");
+                    User author = teacher;
+                    ResearchPaper paper = new ResearchPaper(paperTitle, author, citations);
+                    project.addPaper(paper);
+                    System.out.println("Research paper added to project successfully.");
+                }
+                case 9 -> {
+                    teacher.getTeachingCourses().forEach(c -> System.out.println(c.getCode() + " | " + c.getName()));
+                    String courseCode = ConsoleUtils.askText("Enter course code to add lesson to: ");
+                    Course course = db.findCourseByCode(courseCode);
+                    if (course == null || !teacher.getTeachingCourses().contains(course)) {
+                        System.out.println("Course not found or you do not teach this course.");
+                        return;
+                    }
+                    String type = ConsoleUtils.askText("Enter lesson type(LECTURE: 1, PRACTICE: 2): ");
+                    String date = ConsoleUtils.askText("Enter lesson date (YYYY-MM-DD): ");
+                    int hour = ConsoleUtils.askInt("Enter lesson hour (0-23): ");
+                    Lesson lesson = new Lesson(course, teacher,
+                            type.equals("1") ? enums.LessonType.LECTURE : enums.LessonType.PRACTICE,
+                            enums.WeekDays.valueOf(date.split("-")[2]), hour,
+                            ConsoleUtils.askInt("Enter room number: "));
+                    course.addLesson(lesson);
+                    System.out.println("Lesson added to course successfully.");
+                }
+
+                case 10 -> {
+                    String requestContent = ConsoleUtils.askText("Enter your employee request: ");
+                    EmployeeRequest request = new EmployeeRequest("Employee request from " + teacher.getName(),
+                            requestContent);
+                    db.addEmployeeRequest(request);
+                    System.out.println("Employee request sent");
                 }
             }
         }

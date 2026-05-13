@@ -16,6 +16,7 @@ public class StudentMenu {
             System.out.println("6. Rate teachers");
             System.out.println("7. Enroll in research projects");
             System.out.println("8. View enrolled courses");
+            System.out.println("9. View schedule");
             System.out.println("0. Back");
             int choice = ConsoleUtils.askInt("Choose: ");
 
@@ -110,6 +111,13 @@ public class StudentMenu {
             if (choice == 8) {
                 System.out.println("Viewing enrolled courses...");
                 student.getEnrolledCourses().forEach(c -> System.out.println(c.getCode() + " | " + c.getName()));
+            }
+            if (choice == 9) {
+                System.out.println("Viewing schedule...");
+                student.getEnrolledCourses().forEach(c -> c.getLessons().forEach(l -> System.out.println(
+                        l.getDay() + " " + l.getHour() + ":00/" + (l.getHour() + 1) + ":00 | " + c.getCode() + " | "
+                                + c.getName() + " | "
+                                + l.getLessonType() + " | Room: " + l.getRoomNumber())));
             }
         }
     }

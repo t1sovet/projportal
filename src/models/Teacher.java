@@ -7,6 +7,7 @@ import enums.TeacherTitle;
 import exceptions.CourseNotTaughtException;
 import exceptions.StudentNotEnrolledException;
 import interfaces.Researcher;
+import enums.UserType;
 
 public class Teacher extends Employee implements Researcher {
     private TeacherTitle title;
@@ -111,7 +112,16 @@ public class Teacher extends Employee implements Researcher {
         researchPapers.sort(c);
         for (ResearchPaper paper : researchPapers) {
             System.out.println(
-                    paper.getTitle() + " (" + paper.getYear() + ") - Citations: " + paper.getCitations() + ")");
+                    paper.getTitle() + " by " + paper.getAuthor().getName() + " - Citations: " + paper.getCitations());
+        }
+    }
+
+    @Override
+    public UserType getRole() {
+        if (researcher) {
+            return UserType.TEACHER_RESEARCHER;
+        } else {
+            return UserType.TEACHER;
         }
     }
 

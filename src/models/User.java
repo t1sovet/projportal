@@ -1,6 +1,8 @@
 package models;
 
 import java.io.Serializable;
+
+import enums.UserType;
 import interfaces.Printable;
 
 public abstract class User implements Serializable, Printable {
@@ -44,7 +46,7 @@ public abstract class User implements Serializable, Printable {
         this.name = newName;
     }
 
-    public abstract String getRole();
+    public abstract UserType getRole();
 
     @Override
     public String print() {

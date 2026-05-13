@@ -1,12 +1,15 @@
 package models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Course implements Serializable {
     private final String code;
     private final String name;
     private final int credits;
     private final int yearRequired;
+    private final List<Lesson> lessons = new ArrayList<>();
 
     public Course(String code, String name, int credits, int yearRequired) {
         this.code = code;
@@ -29,6 +32,14 @@ public class Course implements Serializable {
 
     public int getCredits() {
         return credits;
+    }
+
+    public List<Lesson> getLessons() {
+        return new ArrayList<>(lessons);
+    }
+
+    public void addLesson(Lesson lesson) {
+        this.lessons.add(lesson);
     }
 
     @Override

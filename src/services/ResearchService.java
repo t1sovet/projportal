@@ -17,8 +17,8 @@ public class ResearchService {
     private ResearchService() {
     }
 
-    public static List<ResearchPaper> sortPapersByDate(List<ResearchPaper> papers) {
-        papers.sort(Comparator.comparingInt(ResearchPaper::getYear).reversed());
+    public static List<ResearchPaper> sortPapersByAuthorName(List<ResearchPaper> papers) {
+        papers.sort(Comparator.comparing((ResearchPaper p) -> p.getAuthor().getName()).reversed());
         return papers;
     }
 
@@ -34,13 +34,8 @@ public class ResearchService {
         }
     }
 
-    public static User promoteToResearcher(Student student, String password) {
-        ResearcherDecorator researcher = new ResearcherDecorator(student, password);
-        List<User> allUsers = UniversityDatabase.getInstance().getUsers();
-        int index = allUsers.indexOf(student);
-        if (index != -1) {
-            allUsers.set(index, researcher);
-        }
-        return researcher;
+    public static void promoteToResearcher(Student student, String password, UniversityDatabase db) {
+        ResearcherDecorator researcher = new ResearcherDecorator((Student) student, password);
+        db.updateUser(researcher);
     }
 }

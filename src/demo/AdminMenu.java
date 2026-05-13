@@ -5,6 +5,8 @@ import enums.ManagerType;
 import models.*;
 import services.ResearcherDecorator;
 import services.UniversityDatabase;
+import services.ResearchService;
+import utils.UserFactory;
 import utils.*;
 import enums.*;
 
@@ -96,6 +98,40 @@ public final class AdminMenu {
                                 researchPassword, hIndex));
                         System.out.println("Research Employee added.");
                         break;
+                    case 5:
+                        System.out.println("Adding Student...");
+                        String studentId = ConsoleUtils.askText("ID: ");
+                        String studentName = ConsoleUtils.askText("Name: ");
+                        String studentEmail = ConsoleUtils.askText("Email: ");
+                        String studentPassword = ConsoleUtils.askText("Password: ");
+                        int year = ConsoleUtils.askInt("Year: ");
+                        if (year < 1 || year > 4) {
+                            System.out.println("Invalid year. Must be between 1 and 4.");
+                            break;
+                        }
+                        if (year == 4) {
+                            System.out.println("Select Research Employee supervisor:");
+                            db.getUsers().stream().filter(r -> r instanceof ResearchEmployee)
+                                    .forEach(r -> System.out.println(r.getId() + " | " + r.getName()));
+                            String supervisorId = ConsoleUtils.askText("Enter supervisor ID: ");
+                            User supervisor = db.findUserById(supervisorId);
+                            if (supervisor == null || !(supervisor instanceof ResearchEmployee)) {
+                                System.out.println("Supervisor not found or not a Research Employee.");
+                                break;
+                            }
+                            try {
+                                db.addUser(UserFactory.create4thYearStudent(studentId, studentName, studentEmail,
+                                        studentPassword, DegreeType.BACHELOR, (ResearchEmployee) supervisor));
+                                System.out.println("4th Year Student added.");
+                            } catch (Exception e) {
+                                System.out.println("Failed to add 4th Year Student: " + e.getMessage());
+                            }
+                        } else {
+                            db.addUser(UserFactory.createStudent(studentId, studentName, studentEmail, studentPassword,
+                                    year, DegreeType.BACHELOR));
+                            System.out.println("Student added.");
+                        }
+                        break;
 
                     default:
                         break;
@@ -146,19 +182,26 @@ public final class AdminMenu {
                 }
             }
             if (choice == 6) {
+                System.out.println("Search results:");
                 String regex = ConsoleUtils
                         .askText("Enter regular expression to search for users: (matches name, email, or ID): ");
                 db.getUsers().stream()
                         .filter(u -> u.getName().matches(regex) || u.getEmail().matches(regex)
                                 || u.getId().matches(regex))
                         .forEach(u -> System.out.println(u.getId() + " | " + u.print()));
+
             }
             if (choice == 7) {
+                db.getUsers().forEach(u -> System.out.println(u.getId() + " | " + u.getName()));
                 db.getMessages()
                         .forEach(m -> System.out.println("From: " + m.getFrom() + " | To: " + m.getTo() + " | Content: "
                                 + m.getContent()));
                 String recipientId = ConsoleUtils.askText("Enter recipient user ID: ");
                 User recipient = db.findUserById(recipientId);
+                if (recipient instanceof Student) {
+                    System.out.println("Cannot send message to students.");
+                    continue;
+                }
                 if (recipient == null) {
                     System.out.println("User not found.");
                     continue;
@@ -176,11 +219,12 @@ public final class AdminMenu {
                     continue;
                 }
                 String password = ConsoleUtils.askText("Enter new password for researcher: ");
-                ResearcherDecorator researcher = new ResearcherDecorator((Student) student, password);
-                db.updateUser(researcher);
-                System.out.println("Student promoted to Researcher.");
-                researcher.getResearchPapers().forEach(
-                        p -> System.out.println("Research Paper: " + p.getTitle() + " | "));
+                try {
+                    ResearchService.promoteToResearcher((Student) student, password, db);
+                    System.out.println("Student promoted to Researcher.");
+                } catch (Exception e) {
+                    System.out.println("Promotion failed: " + e.getMessage());
+                }
             }
         }
     }

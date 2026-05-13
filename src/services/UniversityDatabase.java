@@ -19,6 +19,7 @@ public class UniversityDatabase implements Serializable {
     private final List<ResearchProject> researchProjects = new ArrayList<>();
     private final SystemLogger logger = new SystemLogger();
     private final List<Message> messages = new ArrayList<>();
+    private final List<EmployeeRequest> employeeRequests = new ArrayList<>();
 
     private UniversityDatabase() {
     }
@@ -57,6 +58,16 @@ public class UniversityDatabase implements Serializable {
 
     public SystemLogger getLogger() {
         return logger;
+    }
+
+    public List<EmployeeRequest> getEmployeeRequests() {
+        return new ArrayList<>(employeeRequests);
+    }
+
+    public void addEmployeeRequest(EmployeeRequest request) {
+        if (request != null) {
+            this.employeeRequests.add(request);
+        }
     }
 
     public void addUser(User user) {
@@ -178,6 +189,10 @@ public class UniversityDatabase implements Serializable {
 
     public Course findCourseByCode(String code) {
         return courses.stream().filter(c -> c.getCode().equals(code)).findFirst().orElse(null);
+    }
+
+    public ResearchProject findResearchProjectByName(String name) {
+        return researchProjects.stream().filter(p -> p.getName().equals(name)).findFirst().orElse(null);
     }
 
     public List<Message> getMessagesWithUser(String userId) {
