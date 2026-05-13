@@ -49,6 +49,10 @@ public class StudentMenu {
                         System.out.println("Cannot register. Fail limit exceeded.");
                         return;
                     }
+                    if (student.getYear() != courseToRegister.getYearRequired()) {
+                        System.out.println("Cannot register. Year requirement not met.");
+                        return;
+                    }
 
                     RegistrationRequest request = new RegistrationRequest(student, courseToRegister);
                     db.addRegistrationRequest(request);
@@ -58,7 +62,6 @@ public class StudentMenu {
                 }
             }
             if (choice == 3) {
-                System.out.println("Select a course to view its teachers:");
                 db.getUsers().stream()
                         .filter(u -> u instanceof Teacher)
                         .forEach(t -> System.out.println(((Teacher) t).getTeachingCourses().stream()

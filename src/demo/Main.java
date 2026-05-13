@@ -122,8 +122,8 @@ public class Main {
         Manager manager = new Manager("M1", "ManagerName", "manager@uni.kz", "manager123", ManagerType.OR);
         Course cs101 = new Course("CS101", "Intro to Computer Science", 10, 1);
         Course ma102 = new Course("MA102", "Calculus I", 20, 1);
-        Course ph103 = new Course("PH103", "Physics I", 4, 1);
-        Course cs201 = new Course("CS201", "Data Structures", 3, 2);
+        Course cs103 = new Course("CS103", "Web Development", 4, 2);
+        Course cs201 = new Course("CS201", "OOP", 3, 2);
         Teacher prof = new Teacher("P1", "Pakita", "pakita@uni.kz", "pakita123", TeacherTitle.PROFESSOR, 5);
         Teacher lecturer = new Teacher("L1", "Beken", "beken@uni.kz", "beken123",
                 TeacherTitle.LECTURER, 2);
@@ -154,12 +154,17 @@ public class Main {
         db.addUser(researchEmployee2);
         db.addUser(dean);
         db.addUser(rector);
-        db.addCourse(ph103);
+        db.addCourse(cs103);
         db.addCourse(cs101);
         db.addCourse(ma102);
         db.addCourse(cs201);
         db.addResearchProject(project1);
         db.addResearchProject(project2);
+
+        prof.assignCourse(cs201);
+        prof.assignCourse(ma102);
+        lecturer.assignCourse(cs201);
+        lecturer.assignCourse(cs103);
         try {
             student4.setSupervisor(researchEmployee);
         } catch (LowHIndexException e) {

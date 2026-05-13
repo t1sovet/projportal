@@ -62,6 +62,10 @@ public class ManagerMenu {
                         break;
                     }
                     Teacher teacher = (Teacher) user;
+                    if (teacher.getTeachingCourses().contains(course)) {
+                        System.out.println("Teacher is already assigned to this course.");
+                        break;
+                    }
                     teacher.assignCourse(course);
                     System.out.println("Teacher assigned to course.");
                 }
