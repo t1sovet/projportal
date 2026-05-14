@@ -3,13 +3,12 @@ package models;
 import java.io.Serializable;
 
 import enums.UserType;
-import interfaces.Printable;
 
-public abstract class User implements Serializable, Printable {
-    private String id;
-    private String name;
-    private String email;
-    private String password;
+public abstract class User implements Serializable {
+    protected String id;
+    protected String name;
+    protected String email;
+    protected String password;
 
     public User(String id, String name, String email, String password) {
         this.id = id;
@@ -49,8 +48,7 @@ public abstract class User implements Serializable, Printable {
     public abstract UserType getRole();
 
     @Override
-    public String print() {
-        return String.format("User{id='%s', name='%s', email='%s'}", id, name, email);
+    public String toString() {
+        return String.format("%s | %s | Role: %s", name, email, getRole());
     }
-
 }

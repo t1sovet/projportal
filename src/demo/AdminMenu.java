@@ -137,7 +137,7 @@ public final class AdminMenu {
 
             }
             if (choice == 4) {
-                db.getUsers().forEach(u -> System.out.println(u.getId() + " | " + u.print()));
+                db.getUsers().forEach(u -> System.out.println(u.getId() + " | " + u.toString()));
                 String userId = ConsoleUtils.askText("Enter user ID to remove: ");
                 if (admin.getId().equals(userId)) {
                     System.out.println("You cannot remove yourself.");
@@ -155,7 +155,7 @@ public final class AdminMenu {
                 }
             }
             if (choice == 5) {
-                db.getUsers().forEach(u -> System.out.println(u.getId() + " | " + u.print()));
+                db.getUsers().forEach(u -> System.out.println(u.getId() + " | " + u.toString()));
                 String userId = ConsoleUtils.askText("Enter user ID to update: ");
                 User userToUpdate = db.getUsers().stream()
                         .filter(u -> u.getId().equals(userId))
@@ -186,7 +186,7 @@ public final class AdminMenu {
                 db.getUsers().stream()
                         .filter(u -> u.getName().matches(regex) || u.getEmail().matches(regex)
                                 || u.getId().matches(regex))
-                        .forEach(u -> System.out.println(u.getId() + " | " + u.print()));
+                        .forEach(u -> System.out.println(u.getId() + " | " + u.toString()));
 
             }
             if (choice == 7) {
