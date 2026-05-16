@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjPortal Architecture Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: sans-serif;
+            line-height: 1.5;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        a {
+            color: #222;
+        }
+
+        .section {
+            margin-top: 22px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        code {
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <a href="documentation.html">Back to index</a>
+        <h1>Architecture Guide</h1>
+        <p>Rules that preserve low coupling and high cohesion while extending ProjPortal.</p>
+
+        <div class="section">
+            <h2>Core Principles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Principle</th>
+                        <th>Practical rule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>High cohesion</td>
+                        <td>Keep each class focused on one responsibility. Example: Student owns enrollment constraints,
+                            Teacher owns grading constraints.</td>
+                    </tr>
+                    <tr>
+                        <td>Low coupling</td>
+                        <td>Depend on interfaces where possible, such as Observer, Researcher, ReportStrategy.</td>
+                    </tr>
+                    <tr>
+                        <td>Orchestration in services</td>
+                        <td>If logic spans multiple entities, place it in AuthService, ResearchService, or
+                            UniversityDatabase.</td>
+                    </tr>
+                    <tr>
+                        <td>UI thinness</td>
+                        <td>Menu classes in demo should gather input and call services/models; avoid embedding
+                            rule-heavy logic there.</td>
+                    </tr>
+                    <tr>
+                        <td>Typed errors</td>
+                        <td>Add/throw custom exceptions from exceptions package for rule breaks instead of returning
+                            error strings.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Patterns Used</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Where</th>
+                        <th>Benefit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Singleton</td>
+                        <td>services.UniversityDatabase</td>
+                        <td>Single shared in-memory state and centralized access.</td>
+                    </tr>
+                    <tr>
+                        <td>Observer</td>
+                        <td>interfaces.Observable/Observer, services.AuthService, utils.SystemLogger</td>
+                        <td>Decouples event producers from event consumers.</td>
+                    </tr>
+                    <tr>
+                        <td>Strategy</td>
+                        <td>interfaces.ReportStrategy, utils.SimpleStatisticsStrategy</td>
+                        <td>Allows reporting behavior swaps without changing core classes.</td>
+                    </tr>
+                    <tr>
+                        <td>Decorator</td>
+                        <td>services.ResearcherDecorator</td>
+                        <td>Adds research behavior with minimal changes to existing model hierarchy.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Extension Checklist</h2>
+            <ol>
+                <li>Decide if the feature is entity-local (models) or cross-entity (services).</li>
+                <li>Add enum values instead of introducing repeated string literals.</li>
+                <li>Add custom exception types for new rule violations.</li>
+                <li>Update role menus only to invoke new use cases, not to host business logic.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjPortal Documentation Index</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: sans-serif;
+            line-height: 1.5;
+            color: #222;
+            background: #fff;
+        }
+
+        .page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0 0 10px;
+        }
+
+        p {
+            margin: 0 0 12px;
+        }
+
+        .section {
+            margin-top: 24px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 14px;
+        }
+
+        .tag {
+            display: inline-block;
+            border: 1px solid #ddd;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        a {
+            color: #222;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <h1>ProjPortal Documentation</h1>
+        <p>Multi-page documentation for the tweaked project at src level.</p>
+        <div class="badge-row">
+            <span class="tag">Low Coupling</span>
+            <span class="tag">High Cohesion</span>
+            <span class="tag">Role-based Console App</span>
+            <span class="tag">Serialization</span>
+            <span class="tag">Research Module</span>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Pages</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th>What it contains</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="pages/documentation-packages.html">Package Map</a></td>
+                        <td>Source package breakdown and responsibilities.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="pages/documentation-architecture.html">Architecture Guide</a></td>
+                        <td>Cohesion/coupling rules, design rationale, and maintenance constraints.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="pages/documentation-usage-examples.html">Class Usage & Code Examples</a></td>
+                        <td>Instructions and usage examples for 8 important classes with code snippets.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Recommended Reading Order</div>
+            <ol>
+                <li>Start with Package Map to understand project boundaries.</li>
+                <li>Read Architecture Guide to keep low coupling and high cohesion when editing.</li>
+                <li>Use Class Usage & Code Examples when implementing features.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+
+</html>

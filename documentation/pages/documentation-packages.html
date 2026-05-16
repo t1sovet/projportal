@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjPortal Package Map</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: sans-serif;
+            line-height: 1.5;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .top {
+            margin-bottom: 16px;
+        }
+
+        a {
+            color: #222;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="top">
+            <a href="documentation.html">Back to index</a>
+            <h1>ProjPortal Package Map</h1>
+            <p>Package-level structure for src with responsibility boundaries.</p>
+        </div>
+
+        <div class="section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Responsibility</th>
+                        <th>Main files</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>demo</td>
+                        <td>Console UI flows and role menus only.</td>
+                        <td>Main.java, AdminMenu.java, ManagerMenu.java, TeacherMenu.java, StudentMenu.java,
+                            ResearchEmployeeMenu.java, DeanRectorMenu.java, ConsoleUtils.java</td>
+                    </tr>
+                    <tr>
+                        <td>models</td>
+                        <td>Domain entities and business state.</td>
+                        <td>User.java, Employee.java, Student.java, Teacher.java, Manager.java, Admin.java, Dean.java,
+                            Rector.java, Course.java, Lesson.java, Mark.java, ResearchPaper.java, ResearchProject.java,
+                            RegistrationRequest.java, EmployeeRequest.java, Message.java, Complaint.java, NewsItem.java,
+                            ResearchEmployee.java</td>
+                    </tr>
+                    <tr>
+                        <td>services</td>
+                        <td>Cross-entity workflows and orchestration.</td>
+                        <td>UniversityDatabase.java, AuthService.java, ResearchService.java, ResearcherDecorator.java
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>interfaces</td>
+                        <td>Behavior contracts and extension points.</td>
+                        <td>Observable.java, Observer.java, Printable.java, Researcher.java, ReportStrategy.java</td>
+                    </tr>
+                    <tr>
+                        <td>utils</td>
+                        <td>Infrastructure and technical helpers.</td>
+                        <td>DataStorage.java, SystemLogger.java, UserFactory.java, SimpleStatisticsStrategy.java</td>
+                    </tr>
+                    <tr>
+                        <td>enums</td>
+                        <td>Type-safe constants and statuses.</td>
+                        <td>UserType.java, DegreeType.java, TeacherTitle.java, ManagerType.java, RequestStatus.java,
+                            LessonType.java, SchoolType.java, WeekDays.java</td>
+                    </tr>
+                    <tr>
+                        <td>exceptions</td>
+                        <td>Domain-specific rule violations.</td>
+                        <td>AuthenticationException.java, CreditLimitExceededException.java,
+                            FailLimitExceededException.java, CourseNotTaughtException.java,
+                            StudentNotEnrolledException.java, NotResearcherException.java, LowHIndexException.java</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Boundary Rule</h2>
+            <p>demo should call services/models but should not contain domain rules. services may coordinate models.
+                models should not depend on demo.</p>
+        </div>
+    </div>
+</body>
+
+</html>

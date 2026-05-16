@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjPortal Class Usage Examples</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: sans-serif;
+            line-height: 1.5;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-top: 24px;
+        }
+
+        a {
+            color: #222;
+        }
+
+        h2 {
+            margin: 0 0 8px;
+        }
+
+        p {
+            margin: 0 0 10px;
+        }
+
+        pre {
+            margin: 0 0 12px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        ul {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <a href="documentation.html">Back to index</a>
+        <h1>Class Usage & Code Examples</h1>
+        <p>Instruction-focused examples for key classes (8 classes).</p>
+
+        <div class="section">
+            <h2>1) services.UniversityDatabase</h2>
+            <p>Use as the shared state holder. Access through its singleton accessor only.</p>
+            <ul>
+                <li>Do: store/retrieve users, courses, requests here.</li>
+                <li>Do not: create ad hoc in-memory lists in menu classes.</li>
+            </ul>
+            <pre><code>import services.UniversityDatabase;
+
+UniversityDatabase db = UniversityDatabase.getInstance();
+// Example: db.addUser(student);
+// Example: db.addCourse(course);</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>2) services.AuthService</h2>
+            <p>Use for login/logout and event notifications. Keep credential checks inside this service.</p>
+            <pre><code>import services.AuthService;
+import services.UniversityDatabase;
+import models.User;
+
+AuthService auth = new AuthService(UniversityDatabase.getInstance());
+try {
+    User user = auth.login("student@projportal.kz", "1234");
+    // route by user.getUserType()
+} catch (Exception e) {
+    System.out.println("Login failed: " + e.getMessage());
+}</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>3) models.Student</h2>
+            <p>Use Student for course registration and personal academic state. Registration must enforce credit/fail
+                limits.</p>
+            <pre><code>import models.Student;
+import models.Course;
+import exceptions.CreditLimitExceededException;
+import exceptions.FailLimitExceededException;
+
+Student s = new Student("S001", "Aruzhan", "a@uni.kz", "pwd", null);
+Course oop = new Course("CS101", "OOP", 5);
+
+try {
+    s.registerCourse(oop);
+} catch (CreditLimitExceededException | FailLimitExceededException ex) {
+    System.out.println(ex.getMessage());
+}</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>4) models.Teacher</h2>
+            <p>Use Teacher for teaching-related behavior: managing marks and course-owned teaching operations.</p>
+            <pre><code>import models.Teacher;
+import models.Course;
+import models.Student;
+import models.Mark;
+
+Teacher t = new Teacher("T001", "Dana", "d@uni.kz", "pwd", null);
+Course oop = new Course("CS101", "OOP", 5);
+Student s = new Student("S001", "Aruzhan", "a@uni.kz", "pwd", null);
+
+// Example pseudo-flow:
+// t.assignCourse(oop);
+// t.putMark(oop, s, new Mark(28, 27, 35, oop));</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>5) models.Course</h2>
+            <p>Course should aggregate students, teachers, and lessons. Keep schedule/member consistency in this class.
+            </p>
+            <pre><code>import models.Course;
+import models.Lesson;
+import enums.LessonType;
+import enums.WeekDays;
+
+Course oop = new Course("CS101", "OOP", 5);
+Lesson lec = new Lesson(oop, LessonType.LECTURE, WeekDays.MONDAY, "10:00", "Aud-401");
+
+// Example: oop.addLesson(lec);
+// Example: oop.addStudent(student);</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>6) services.ResearchService</h2>
+            <p>Use this service for cross-user research operations and sorting utilities.</p>
+            <pre><code>import services.ResearchService;
+import models.ResearchPaper;
+import java.util.List;
+
+List&lt;ResearchPaper&gt; papers = List.of();
+List&lt;ResearchPaper&gt; sorted = ResearchService.sortByDate(papers);
+System.out.println("Sorted papers: " + sorted.size());</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>7) utils.DataStorage</h2>
+            <p>Use DataStorage to persist and restore university state from serialized storage.</p>
+            <pre><code>import utils.DataStorage;
+import services.UniversityDatabase;
+
+UniversityDatabase db = UniversityDatabase.getInstance();
+DataStorage.save(db, "db.ser");
+UniversityDatabase restored = DataStorage.load("db.ser");</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>8) utils.UserFactory</h2>
+            <p>Use UserFactory when creating users by role to avoid duplicated construction logic.</p>
+            <pre><code>import utils.UserFactory;
+import enums.UserType;
+import models.User;
+
+User u = UserFactory.createUser(
+    UserType.STUDENT,
+    "S010",
+    "Nursultan",
+    "n@uni.kz",
+    "pwd"
+);
+System.out.println(u.getName());</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>General Guidance</h2>
+            <ul>
+                <li>Catch domain exceptions at menu/service boundaries and print actionable messages.</li>
+                <li>Prefer method calls across interfaces instead of type-check chains where possible.</li>
+                <li>Keep object creation centralized in factory/service layers for consistent defaults.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
