@@ -152,7 +152,7 @@ public class ManagerMenu {
 
                 case 11 -> {
                     System.out.println("Generating report...");
-                    db.getCourses().forEach(c -> System.out.println(c.getName()));
+                    db.getCourses().forEach(c -> System.out.println(c.getCode() + " | " + c.getName()));
                     manager.setReportStrategy(new SimpleStatisticsStrategy());
                     Course course = db.findCourseByCode(ConsoleUtils.askText("Enter Course Code: "));
                     if (course == null) {
