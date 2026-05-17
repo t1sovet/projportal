@@ -153,7 +153,7 @@ public class Main {
         Admin admin = new Admin("A1", "AdminName", "admin@uni.kz", "admin123");
         Manager manager = new Manager("M1", "ManagerName", "manager@uni.kz", "manager123", ManagerType.OR);
         Course cs101 = new Course("CS101", "Intro to Computer Science", 10, 1);
-        Course ma102 = new Course("MA102", "Calculus I", 20, 1);
+        Course ma102 = new Course("MA102", "Calculus I", 11, 1);
         Course cs103 = new Course("CS103", "Web Development", 4, 2);
         Course cs201 = new Course("CS201", "OOP", 3, 2);
         Teacher prof = new Teacher("P1", "Pakita", "pakita@uni.kz", "pakita123", TeacherTitle.PROFESSOR, 5);
@@ -200,7 +200,7 @@ public class Main {
 
         try {
             student1.requestToEnroll(cs101); // 10
-            student1.requestToEnroll(cs103); // 4. Total 14
+            student1.requestToEnroll(ma102); // 4. Total 21
             student2.requestToEnroll(cs201); // 3
             student2.requestToEnroll(cs101); // 10. Total 13
 
