@@ -20,9 +20,7 @@ public class AuthService implements Observable {
     public User login(String email, String password) throws AuthenticationException {
         for (User user : db.getUsers()) {
             if (user.getEmail().equals(email) && user.checkPassword(password)) {
-                if (user.getEmail().equals(email)) {
-                    System.out.println("Email matched for user: " + user.getName());
-                }
+                System.out.println("Login successful for user: " + user.getName());
                 currentUser = user;
                 notifyObservers("SUCCESSFUL_LOGIN: " + email);
                 return user;

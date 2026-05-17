@@ -6,8 +6,9 @@ import enums.*;
 
 public class DeanRectorMenu {
 
-    public void open(Dean dean, UniversityDatabase db) {
+    public static void open(Employee employee, UniversityDatabase db) {
         while (true) {
+            System.out.println("\n=== Dean/Rector Menu: " + employee.getName() + " ===");
             System.out.println("1. View all courses");
             System.out.println("2. View all teachers");
             System.out.println("3. View all students");

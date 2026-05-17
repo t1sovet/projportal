@@ -3,8 +3,10 @@ package demo;
 import java.util.List;
 
 import services.AuthService;
+import services.ResearcherDecorator;
 import services.UniversityDatabase;
 import utils.DataStorage;
+import gui.WspGui;
 import models.*;
 import enums.*;
 import exceptions.*;
@@ -15,18 +17,26 @@ public class Main {
     public static void main(String[] args) {
         UniversityDatabase db = UniversityDatabase.getInstance();
         loadIfExists(db);
+        cleanupDuplicates(db);
         seedIfEmpty(db);
+
+        // Add shutdown hook to save data on exit (including GUI close)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\nShutdown detected. Saving data...");
+            DataStorage.save(UniversityDatabase.getInstance(), DATA_PATH);
+        }));
 
         AuthService authService = new AuthService(db);
         authService.addObserver(db.getLogger());
 
         while (true) {
             System.out.println("\n===Welcome to WSP-wannabe===");
-            System.out.println("1. Login");
-            System.out.println("2. View News");
-            System.out.println("3. View research projects (sorted alphabetically)");
-            System.out.println("4. View research projects (sorted by page number)");
-            System.out.println("5. Show top researchers (by H-Index)");
+            System.out.println("1. Login (Console)");
+            System.out.println("2. Launch GUI");
+            System.out.println("3. View News");
+            System.out.println("4. View research projects (sorted alphabetically)");
+            System.out.println("5. View research projects (sorted by page number)");
+            System.out.println("6. Show top researchers (by H-Index)");
             System.out.println("0. Exit");
             int inputInt = ConsoleUtils.askInt("Choose an option: ");
 
@@ -47,6 +57,10 @@ public class Main {
                 }
             }
             if (inputInt == 2) {
+                WspGui.start(db);
+                System.out.println("GUI launched. Continue using console or close GUI to exit.");
+            }
+            if (inputInt == 3) {
                 List<models.NewsItem> news = db.getNews();
                 if (news.isEmpty()) {
                     System.out.println("No news available.");
@@ -58,7 +72,7 @@ public class Main {
                 }
 
             }
-            if (inputInt == 3) {
+            if (inputInt == 4) {
                 List<ResearchProject> projects = db.getResearchProjects();
                 if (projects.isEmpty()) {
                     System.out.println("No research projects available.");
@@ -69,7 +83,7 @@ public class Main {
                             .forEach(p -> System.out.println(p.name));
                 }
             }
-            if (inputInt == 5) {
+            if (inputInt == 6) {
                 List<ResearchEmployee> researchers = db.getUsers().stream()
                         .filter(u -> u instanceof ResearchEmployee)
                         .map(u -> (ResearchEmployee) u)
@@ -83,7 +97,7 @@ public class Main {
                             .forEach(r -> System.out.println(r.getName() + " | H-Index: " + r.getHIndex()));
                 }
             }
-            if (inputInt == 4) {
+            if (inputInt == 5) {
                 List<ResearchProject> projects = db.getResearchProjects();
                 if (projects.isEmpty()) {
                     System.out.println("No research projects available.");
@@ -93,6 +107,19 @@ public class Main {
                             .sorted((p1, p2) -> Integer.compare(p2.getPaperCount(), p1.getPaperCount()))
                             .forEach(p -> System.out.println(p.getName() + " | Papers: " + p.getPaperCount()));
                 }
+            }
+        }
+    }
+
+    private static void cleanupDuplicates(UniversityDatabase db) {
+        for (User u : db.getUsers()) {
+            if (u instanceof Student s) {
+                java.util.Map<Course, Mark> markMap = new java.util.LinkedHashMap<>();
+                for (Mark m : s.getMarks()) {
+                    markMap.put(m.getCourse(), m);
+                }
+                s.getMarks().clear();
+                s.getMarks().addAll(markMap.values());
             }
         }
     }
@@ -109,6 +136,11 @@ public class Main {
         db.setCourses(loadedDb.getCourses());
         db.setNews(loadedDb.getNews());
         db.setResearchProjects(loadedDb.getResearchProjects());
+        db.setComplaints(loadedDb.getComplaints());
+        db.setRegistrationRequests(loadedDb.getRegistrationRequests());
+        db.setMessages(loadedDb.getMessages());
+        db.setEmployeeRequests(loadedDb.getEmployeeRequests());
+        db.setLessons(loadedDb.getLessons());
 
         System.out.println("Successfully restored " + db.getUsers().size() + " users.");
     }
@@ -165,9 +197,20 @@ public class Main {
         prof.assignCourse(ma102);
         lecturer.assignCourse(cs201);
         lecturer.assignCourse(cs103);
+
         try {
+            student1.requestToEnroll(cs101); // 10
+            student1.requestToEnroll(cs103); // 4. Total 14
+            student2.requestToEnroll(cs201); // 3
+            student2.requestToEnroll(cs101); // 10. Total 13
+
+            db.addLesson(new Lesson(cs101, prof, LessonType.LECTURE, WeekDays.MONDAY, 9, 301));
+            db.addLesson(new Lesson(ma102, prof, LessonType.PRACTICE, WeekDays.TUESDAY, 11, 402));
+            db.addLesson(new Lesson(cs201, lecturer, LessonType.LECTURE, WeekDays.WEDNESDAY, 14, 205));
+            db.addLesson(new Lesson(cs103, lecturer, LessonType.LABORATORY, WeekDays.THURSDAY, 10, 101));
+
             student4.setSupervisor(researchEmployee);
-        } catch (LowHIndexException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
@@ -179,15 +222,19 @@ public class Main {
         } else if (user.getRole() == UserType.MANAGER) {
             ManagerMenu.open((Manager) user, db);
         } else if (user.getRole() == UserType.TEACHER || user.getRole() == UserType.TEACHER_RESEARCHER) {
-            try {
-                TeacherMenu.open((Teacher) user, db);
-            } catch (CourseNotTaughtException | StudentNotEnrolledException e) {
-                System.out.println(e.getMessage());
-            }
+            TeacherMenu.open((Teacher) user, db);
         } else if (user.getRole() == UserType.STUDENT) {
             StudentMenu.open((Student) user, db);
-        } else if (user.getRole() == UserType.RESEARCH_EMPLOYEE || user.getRole() == UserType.STUDENT_RESEARCHER) {
+        } else if (user.getRole() == UserType.RESEARCH_EMPLOYEE) {
             ResearchEmployeeMenu.open((ResearchEmployee) user, db);
+        } else if (user.getRole() == UserType.STUDENT_RESEARCHER) {
+            if (user instanceof ResearcherDecorator decorator && decorator.getInnerUser() instanceof Student) {
+                StudentResearcherMenu.open(decorator, db);
+            } else {
+                throw new IllegalStateException("Invalid STUDENT_RESEARCHER user type: wrapped Student expected.");
+            }
+        } else if (user.getRole() == UserType.DEAN || user.getRole() == UserType.RECTOR) {
+            DeanRectorMenu.open((Employee) user, db);
         }
     }
 }

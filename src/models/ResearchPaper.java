@@ -8,6 +8,7 @@ public class ResearchPaper implements Serializable {
     private int citations;
 
     public ResearchPaper(String title, User author, int citations) {
+        if (citations < 0) throw new IllegalArgumentException("Citations cannot be negative.");
         this.title = title;
         this.author = author;
         this.citations = citations;

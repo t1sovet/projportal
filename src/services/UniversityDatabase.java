@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import exceptions.LessonTimeConflictException;
 import models.*;
 import utils.SystemLogger;
 
 public class UniversityDatabase implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static final UniversityDatabase instance = new UniversityDatabase();
 
     private final List<User> users = new ArrayList<>();
@@ -20,6 +22,7 @@ public class UniversityDatabase implements Serializable {
     private final SystemLogger logger = new SystemLogger();
     private final List<Message> messages = new ArrayList<>();
     private final List<EmployeeRequest> employeeRequests = new ArrayList<>();
+    private final List<Lesson> lessons = new ArrayList<>();
 
     private UniversityDatabase() {
     }
@@ -64,6 +67,10 @@ public class UniversityDatabase implements Serializable {
         return new ArrayList<>(employeeRequests);
     }
 
+    public List<Lesson> getLessons() {
+        return new ArrayList<>(lessons);
+    }
+
     public void addEmployeeRequest(EmployeeRequest request) {
         if (request != null) {
             this.employeeRequests.add(request);
@@ -86,6 +93,8 @@ public class UniversityDatabase implements Serializable {
         if (student == null || course == null) {
             return;
         }
+        Mark mark = new Mark(mark1, mark2, markExam, course);
+        student.addMark(mark);
     }
 
     public void addNews(NewsItem newsItem) {
@@ -115,6 +124,28 @@ public class UniversityDatabase implements Serializable {
     public void addMessage(Message message) {
         if (message != null) {
             this.messages.add(message);
+        }
+    }
+
+    public void addLesson(Lesson lesson) throws LessonTimeConflictException {
+        if (lesson == null) {
+            throw new IllegalArgumentException("Lesson cannot be null.");
+        }
+
+        for (Lesson existingLesson : lessons) {
+            boolean sameTeacher = existingLesson.getTeacher().getId().equals(lesson.getTeacher().getId());
+            boolean sameTime = existingLesson.getDay() == lesson.getDay()
+                    && existingLesson.getHour() == lesson.getHour();
+            if (sameTeacher && sameTime) {
+                throw new LessonTimeConflictException(
+                        "Teacher " + lesson.getTeacher().getName() + " already has a lesson on "
+                                + lesson.getDay() + " at " + lesson.getHour() + ":00.");
+            }
+        }
+
+        this.lessons.add(lesson);
+        if (!lesson.getCourse().getLessons().contains(lesson)) {
+            lesson.getCourse().addLesson(lesson);
         }
     }
 
@@ -179,6 +210,20 @@ public class UniversityDatabase implements Serializable {
         }
     }
 
+    public void setEmployeeRequests(List<EmployeeRequest> employeeRequests) {
+        this.employeeRequests.clear();
+        if (employeeRequests != null) {
+            this.employeeRequests.addAll(employeeRequests);
+        }
+    }
+
+    public void setLessons(List<Lesson> lessons) {
+        this.lessons.clear();
+        if (lessons != null) {
+            this.lessons.addAll(lessons);
+        }
+    }
+
     public Optional<User> findUserByEmail(String email) {
         return users.stream().filter(u -> u.getEmail().equals(email)).findFirst();
     }
@@ -208,6 +253,12 @@ public class UniversityDatabase implements Serializable {
     public void removeUser(User user) {
         if (user != null) {
             this.users.remove(user);
+        }
+    }
+
+    public void removeNews(NewsItem newsItem) {
+        if (newsItem != null) {
+            this.news.remove(newsItem);
         }
     }
 }

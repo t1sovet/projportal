@@ -14,7 +14,9 @@ public final class DataStorage {
     public static void save(UniversityDatabase db, String path) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
             oos.writeObject(db);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            System.err.println("Error saving data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -24,7 +26,11 @@ public final class DataStorage {
             if (obj instanceof UniversityDatabase db) {
                 return db;
             }
-        } catch (Exception ignored) {
+        } catch (java.io.FileNotFoundException e) {
+            // This is expected on first run
+        } catch (Exception e) {
+            System.err.println("Error loading data: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

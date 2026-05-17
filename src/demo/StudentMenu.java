@@ -31,29 +31,8 @@ public class StudentMenu {
                 System.out.println("Registering for courses...");
                 db.getCourses().forEach(System.out::println);
                 String courseCode = ConsoleUtils.askText("Enter course code to register: ");
-                if (courseCode == null || student.getEnrolledCourses().stream().map(Course::getCode)
-                        .toList().contains(courseCode)) {
-                    System.out.println("Invalid course code or already enrolled.");
-                    return;
-                }
-                Course courseToRegister = db.getCourses().stream()
-                        .filter(c -> c.getCode().equalsIgnoreCase(courseCode))
-                        .findFirst()
-                        .orElse(null);
+                Course courseToRegister = db.findCourseByCode(courseCode);
                 if (courseToRegister != null) {
-                    if (student.getCreditsTaken() + courseToRegister.getCredits() > 21) {
-                        System.out.println("Cannot register. Credit limit exceeded.");
-                        return;
-                    }
-                    if (student.getFailedCourses() >= 3) {
-                        System.out.println("Cannot register. Fail limit exceeded.");
-                        return;
-                    }
-                    if (student.getYear() != courseToRegister.getYearRequired()) {
-                        System.out.println("Cannot register. Year requirement not met.");
-                        return;
-                    }
-
                     RegistrationRequest request = new RegistrationRequest(student, courseToRegister);
                     db.addRegistrationRequest(request);
                     System.out.println("Registration request submitted for " + courseToRegister.getName());
@@ -100,16 +79,16 @@ public class StudentMenu {
                 User user = db.findUserById(teacherId);
                 if (user == null || !(user instanceof Teacher)) {
                     System.out.println("Teacher not found.");
-                    return;
+                    continue;
                 }
                 Teacher teacherToRate = (Teacher) user;
                 int rating = ConsoleUtils.askInt("Enter rating (1-5): ");
-                if (rating < 1 || rating > 5) {
-                    System.out.println("Invalid rating. Must be between 1 and 5.");
-                    return;
+                try {
+                    teacherToRate.addRating(rating);
+                    System.out.println("Rating submitted for " + teacherToRate.getName());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid rating: " + e.getMessage());
                 }
-                teacherToRate.addRating(rating);
-                System.out.println("Rating submitted for " + teacherToRate.getName());
             }
             if (choice == 8) {
                 System.out.println("Viewing enrolled courses...");

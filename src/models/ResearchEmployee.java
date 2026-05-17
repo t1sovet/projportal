@@ -28,10 +28,23 @@ public class ResearchEmployee extends Employee implements Researcher {
     @Override
     public void addResearchPaper(ResearchPaper paper) {
         this.papers.add(paper);
-        int citations = paper.getCitations();
-        if (citations > hIndex) {
-            hIndex = citations;
+        updateHIndex();
+    }
+
+    private void updateHIndex() {
+        List<Integer> citations = papers.stream()
+                .map(ResearchPaper::getCitations)
+                .sorted((a, b) -> b - a)
+                .toList();
+        int h = 0;
+        for (int i = 0; i < citations.size(); i++) {
+            if (citations.get(i) >= i + 1) {
+                h = i + 1;
+            } else {
+                break;
+            }
         }
+        this.hIndex = h;
     }
 
     @Override

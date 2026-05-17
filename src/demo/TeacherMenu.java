@@ -4,14 +4,16 @@ import services.UniversityDatabase;
 
 import java.util.Comparator;
 
+import enums.LessonType;
+import enums.WeekDays;
 import exceptions.CourseNotTaughtException;
+import exceptions.LessonTimeConflictException;
 import exceptions.StudentNotEnrolledException;
 import models.*;
 
 public class TeacherMenu {
 
-    public static void open(Teacher teacher, UniversityDatabase db)
-            throws CourseNotTaughtException, StudentNotEnrolledException {
+    public static void open(Teacher teacher, UniversityDatabase db) {
         while (true) {
             System.out.println("\n--- Teacher Menu ---");
             System.out.println("1. View teaching courses");
@@ -46,7 +48,7 @@ public class TeacherMenu {
                 case 3 -> {
                     if (teacher.getTeachingCourses().isEmpty()) {
                         System.out.println("You are not teaching any courses.");
-                        return;
+                        continue;
                     }
                     teacher.getTeachingCourses().forEach(c -> System.out.println(c.getCode() + " | " + c.getName()));
                     String courseCode = ConsoleUtils.askText("Enter course code to put marks for: ");
@@ -67,12 +69,6 @@ public class TeacherMenu {
                         int firstAttestation = ConsoleUtils.askInt("First attestation: (max 30) ");
                         int secondAttestation = ConsoleUtils.askInt("Second attestation: (max 30) ");
                         int finalExam = ConsoleUtils.askInt("Final exam: (max 40) ");
-                        if (firstAttestation < 0 || firstAttestation > 30 || secondAttestation < 0
-                                || secondAttestation > 30
-                                || finalExam < 0 || finalExam > 40) {
-                            System.out.println("Error: Marks must be within the specified ranges.");
-                            return;
-                        }
                         teacher.putMark(course, student, firstAttestation, secondAttestation, finalExam);
 
                         System.out.println("Successfully put marks for " + student.getName());
@@ -108,9 +104,7 @@ public class TeacherMenu {
 
                 case 6 -> {
                     String title = ConsoleUtils.askText("Paper title: ");
-                    int year = ConsoleUtils.askInt("Publication year: ");
                     int citations = ConsoleUtils.askInt("Number of citations: ");
-                    int pages = ConsoleUtils.askInt("Number of pages: ");
                     ResearchPaper paper = new ResearchPaper(title, teacher, citations);
                     teacher.addResearchPaper(paper);
                     System.out.println("Research paper added successfully.");
@@ -129,10 +123,9 @@ public class TeacherMenu {
                     ResearchProject project = db.findResearchProjectByName(projectName);
                     if (project == null) {
                         System.out.println("Research project not found.");
-                        return;
+                        continue;
                     }
                     String paperTitle = ConsoleUtils.askText("Paper title: ");
-                    int year = ConsoleUtils.askInt("Publication year: ");
                     int citations = ConsoleUtils.askInt("Number of citations: ");
                     User author = teacher;
                     ResearchPaper paper = new ResearchPaper(paperTitle, author, citations);
@@ -145,17 +138,27 @@ public class TeacherMenu {
                     Course course = db.findCourseByCode(courseCode);
                     if (course == null || !teacher.getTeachingCourses().contains(course)) {
                         System.out.println("Course not found or you do not teach this course.");
-                        return;
+                        continue;
                     }
-                    String type = ConsoleUtils.askText("Enter lesson type(LECTURE: 1, PRACTICE: 2): ");
-                    String date = ConsoleUtils.askText("Enter lesson date (YYYY-MM-DD): ");
-                    int hour = ConsoleUtils.askInt("Enter lesson hour (0-23): ");
-                    Lesson lesson = new Lesson(course, teacher,
-                            type.equals("1") ? enums.LessonType.LECTURE : enums.LessonType.PRACTICE,
-                            enums.WeekDays.valueOf(date.split("-")[2]), hour,
-                            ConsoleUtils.askInt("Enter room number: "));
-                    course.addLesson(lesson);
-                    System.out.println("Lesson added to course successfully.");
+                    try {
+                        String typeInput = ConsoleUtils
+                                .askText("Enter lesson type (LECTURE: 1, PRACTICE: 2, LABORATORY: 3): ");
+                        String dayInput = ConsoleUtils
+                                .askText("Enter lesson day (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY): ");
+                        int hour = ConsoleUtils.askInt("Enter lesson hour (8-20): ");
+                        int room = ConsoleUtils.askInt("Enter room number (1-999): ");
+
+                        LessonType lessonType = parseLessonType(typeInput);
+                        WeekDays day = WeekDays.valueOf(dayInput.trim().toUpperCase());
+                        Lesson lesson = new Lesson(course, teacher, lessonType, day, hour, room);
+
+                        db.addLesson(lesson);
+                        System.out.println("Lesson added to schedule successfully.");
+                    } catch (LessonTimeConflictException e) {
+                        System.out.println("Cannot add lesson: " + e.getMessage());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid lesson data: " + e.getMessage());
+                    }
                 }
 
                 case 10 -> {
@@ -167,5 +170,15 @@ public class TeacherMenu {
                 }
             }
         }
+    }
+
+    private static LessonType parseLessonType(String typeInput) {
+        String normalized = typeInput == null ? "" : typeInput.trim();
+        return switch (normalized) {
+            case "1" -> LessonType.LECTURE;
+            case "2" -> LessonType.PRACTICE;
+            case "3" -> LessonType.LABORATORY;
+            default -> throw new IllegalArgumentException("Unknown lesson type. Use 1, 2, or 3.");
+        };
     }
 }

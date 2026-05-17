@@ -4,8 +4,10 @@ import enums.*;
 import models.*;
 import services.UniversityDatabase;
 import utils.SimpleStatisticsStrategy;
+import exceptions.AlreadyEnrolledException;
 import exceptions.CreditLimitExceededException;
 import exceptions.FailLimitExceededException;
+import exceptions.YearRequirementNotMetException;
 
 public class ManagerMenu {
     public static void open(Manager manager, UniversityDatabase db) {
@@ -82,7 +84,8 @@ public class ManagerMenu {
                                 request.getStudent().requestToEnroll(request.getCourse());
                                 request.setStatus(RequestStatus.APPROVED);
                                 System.out.println("Approved and registered.");
-                            } catch (CreditLimitExceededException | FailLimitExceededException e) {
+                            } catch (CreditLimitExceededException | FailLimitExceededException
+                                    | AlreadyEnrolledException | YearRequirementNotMetException e) {
                                 System.out.println("Approval failed: " + e.getMessage());
                                 request.setStatus(RequestStatus.REJECTED);
                             }
@@ -149,8 +152,13 @@ public class ManagerMenu {
 
                 case 11 -> {
                     System.out.println("Generating report...");
+                    db.getCourses().forEach(c -> System.out.println(c.getName()));
                     manager.setReportStrategy(new SimpleStatisticsStrategy());
                     Course course = db.findCourseByCode(ConsoleUtils.askText("Enter Course Code: "));
+                    if (course == null) {
+                        System.out.println("Course not found.");
+                        continue;
+                    }
                     manager.performReport(course);
                 }
 

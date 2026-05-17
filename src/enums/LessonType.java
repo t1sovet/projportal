@@ -2,5 +2,6 @@ package enums;
 
 public enum LessonType {
     LECTURE,
-    PRACTICE
+    PRACTICE,
+    LABORATORY
 }

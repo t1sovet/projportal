@@ -3,9 +3,11 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 import enums.DegreeType;
+import exceptions.AlreadyEnrolledException;
 import exceptions.CreditLimitExceededException;
 import exceptions.FailLimitExceededException;
 import exceptions.LowHIndexException;
+import exceptions.YearRequirementNotMetException;
 import enums.UserType;
 
 public class Student extends User {
@@ -61,6 +63,12 @@ public class Student extends User {
     }
 
     public void addMark(Mark mark) {
+        for (int i = 0; i < marks.size(); i++) {
+            if (marks.get(i).getCourse().equals(mark.getCourse())) {
+                marks.set(i, mark);
+                return;
+            }
+        }
         this.marks.add(mark);
     }
 
@@ -78,14 +86,30 @@ public class Student extends User {
     }
 
     public double calculateGPA() {
-        int sum = 0;
+        if (marks.isEmpty()) {
+            return 0.0;
+        }
+        double sum = 0.0;
         for (Mark mark : marks) {
             sum += mark.getTotal();
         }
-        return sum / (double) marks.size();
+        double averageTotalMark = sum / marks.size();
+        return averageTotalMark / 25.0;
     }
 
-    public void requestToEnroll(Course course) throws CreditLimitExceededException, FailLimitExceededException {
+    public void requestToEnroll(Course course)
+            throws CreditLimitExceededException, FailLimitExceededException, AlreadyEnrolledException,
+            YearRequirementNotMetException {
+        if (course == null) {
+            throw new IllegalArgumentException("Course cannot be null.");
+        }
+        if (enrolledCourses.contains(course)) {
+            throw new AlreadyEnrolledException("Already enrolled in " + course.getName() + ".");
+        }
+        if (year < course.getYearRequired()) {
+            throw new YearRequirementNotMetException(
+                    "Cannot enroll in " + course.getName() + ". Required year: " + course.getYearRequired() + ".");
+        }
         if (creditsTaken + course.getCredits() > MAX_CREDITS) {
             throw new CreditLimitExceededException(
                     "Cannot enroll in more than " + MAX_CREDITS + " credits.");

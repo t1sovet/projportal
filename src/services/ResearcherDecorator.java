@@ -26,7 +26,7 @@ public class ResearcherDecorator extends User implements Researcher {
         return hIndex;
     }
 
-    public User getWrappedUser() {
+    public User getInnerUser() {
         return userToWrap;
     }
 
@@ -47,9 +47,23 @@ public class ResearcherDecorator extends User implements Researcher {
     @Override
     public void addResearchPaper(ResearchPaper paper) {
         researchPapers.add(paper);
-        if (paper.getCitations() > hIndex) {
-            hIndex = paper.getCitations();
+        updateHIndex();
+    }
+
+    private void updateHIndex() {
+        List<Integer> citations = researchPapers.stream()
+                .map(ResearchPaper::getCitations)
+                .sorted((a, b) -> b - a)
+                .toList();
+        int h = 0;
+        for (int i = 0; i < citations.size(); i++) {
+            if (citations.get(i) >= i + 1) {
+                h = i + 1;
+            } else {
+                break;
+            }
         }
+        this.hIndex = h;
     }
 
     @Override
@@ -59,10 +73,6 @@ public class ResearcherDecorator extends User implements Researcher {
         } else {
             return UserType.TEACHER_RESEARCHER;
         }
-    }
-
-    public User getInnerUser() {
-        return userToWrap;
     }
 
 }

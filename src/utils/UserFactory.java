@@ -11,6 +11,10 @@ public class UserFactory {
             case ADMIN -> new Admin(id, name, email, password);
             case MANAGER -> new Manager(id, name, email, password, ManagerType.OR);
             case STUDENT -> new Student(id, name, email, password, 1, DegreeType.BACHELOR);
+            case TEACHER -> new Teacher(id, name, email, password, TeacherTitle.LECTURER, 0);
+            case RESEARCH_EMPLOYEE -> new ResearchEmployee(id, name, email, password, 0);
+            case DEAN -> new Dean(id, name, email, password);
+            case RECTOR -> new Rector(id, name, email, password);
             default -> throw new IllegalArgumentException("Unknown user type: " + type);
         };
     }
@@ -26,12 +30,6 @@ public class UserFactory {
     }
 
     public static Teacher createTeacher(String id, String name, String email, String password, TeacherTitle title) {
-        if (title == TeacherTitle.LECTURER) {
-            title = TeacherTitle.LECTURER;
-        }
-        if (title == TeacherTitle.PROFESSOR) {
-            title = TeacherTitle.LECTURER;
-        }
         return new Teacher(id, name, email, password, title, 0);
     }
 
